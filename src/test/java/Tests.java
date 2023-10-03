@@ -1,17 +1,9 @@
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.time.Duration;
-import java.time.ZonedDateTime;
 
 import static java.time.Duration.ofSeconds;
 
-public class Test1_LikeButtonCounter extends SeleniumBaseTest{
+public class Tests extends SeleniumBaseTest{
 
     @Test
     public void scenario1_likeButtonCounterIsIncreasedAfterClicking() throws InterruptedException {

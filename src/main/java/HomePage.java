@@ -99,7 +99,6 @@ public class HomePage {
 
         Assert.assertTrue(all - hiddenNamesList.size() == size, "hidden elements count:" + hiddenNamesList.size() + "; expected: " + size);
 
-//        Assert.assertEquals(namesList.size(), size);
         return this;
     }
 
@@ -118,19 +117,9 @@ public class HomePage {
 
         String timestampAsString = (localDate + " " + timerTxt);
 
-//        Format f = new SimpleDateFormat("HH:mm:ss");
-//        String strResult = f.format(new Date());
-//        LocalDateTime localDateTime = LocalDateTime.from(formatter.parse(timestampAsString));
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-d HH:mm:ss");
         LocalDateTime localDateTimeFromTimer = LocalDateTime.parse(timestampAsString, formatter);
         System.out.println(localDateTimeFromTimer);
-
-//        ZonedDateTime dateTime = ZonedDateTime.now();
-//        System.out.println(dateTime);
-//        String expectedTxt = (dateTime.getHour()+":"+dateTime.getMinute()+)
-
-//        Assert.assertEquals(actual,expectedTxt);
 
         long diffPlus = ChronoUnit.SECONDS.between(localDateTimeFromTimer, xSecondsLater);
         long diffMinus = ChronoUnit.SECONDS.between(localDateTimeFromTimer, xSecondsEarlier);
