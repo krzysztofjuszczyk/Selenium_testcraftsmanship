@@ -1,21 +1,14 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 
 public class HomePage {
@@ -47,20 +40,41 @@ public class HomePage {
     @FindBy(id = "page-heading-timer")
     private WebElement timer;
 
+    public boolean noOfLikesIsChanged(int prev){
+            int curr = this.getLikeCount();
+            return curr != prev;
+    }
+
     public int getLikeCount() {
+        try{
         return Integer.parseInt(getLikeBtnCount.getText());
+    }
+        catch(StaleElementReferenceException e){
+            return Integer.parseInt(getLikeBtnCount.getText());
+        }
+    }
+
+    public String getTimerValue() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.visibilityOf(timer));
+            return timer.getText();
+        } catch (StaleElementReferenceException e) {
+            return timer.getText();
+        }
     }
 
     public HomePage clickLike() {
         likeBtn.click();
+
 //        getLikeBtnCount.wait(1000);
-        synchronized (getLikeBtnCount) {
-            try {
-                getLikeBtnCount.wait(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        synchronized (getLikeBtnCount) {
+//            try {
+//                getLikeBtnCount.wait(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
         return this;
     }
 
@@ -105,31 +119,16 @@ public class HomePage {
     public HomePage assertTimerDateIsNowPlusMinusXSeconds(int x) {
         LocalDateTime now = LocalDateTime.now();
         String localDate = (now.getYear() + "-" + now.getMonthValue() + "-" + now.getDayOfMonth());
-        LocalDateTime xSecondsLater = now.plusSeconds(x);
-        LocalDateTime xSecondsEarlier = now.minusSeconds(x);
-
-        String timerTxt = timer.getText();
-        while (timerTxt.equals("")) {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("page-heading-timer")));
-            timerTxt = timer.getText();
-        }
-
+        String timerTxt = getTimerValue();
         String timestampAsString = (localDate + " " + timerTxt);
 
+        // parsing date from timer on WWW to a DateTime format in order to calculate the difference
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-d HH:mm:ss");
         LocalDateTime localDateTimeFromTimer = LocalDateTime.parse(timestampAsString, formatter);
-        System.out.println(localDateTimeFromTimer);
+        System.out.println("fromTimer: " + localDateTimeFromTimer + " | from System: " + now);
+        long difference = ChronoUnit.SECONDS.between(localDateTimeFromTimer,now);
 
-        long diffPlus = ChronoUnit.SECONDS.between(localDateTimeFromTimer, xSecondsLater);
-        long diffMinus = ChronoUnit.SECONDS.between(localDateTimeFromTimer, xSecondsEarlier);
-        System.out.println("fromTimer: " + localDateTimeFromTimer);
-        System.out.println("later: " + xSecondsLater);
-        System.out.println("diff Plus: " + diffPlus);
-        System.out.println("earlier: " + xSecondsEarlier);
-        System.out.println("diffMinus: " + diffMinus);
-        Assert.assertTrue(diffPlus <= 5 && diffMinus >= -5);
-
+        Assert.assertTrue(difference <= x && difference >= -x);
         return this;
     }
 }
